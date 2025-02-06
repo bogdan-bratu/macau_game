@@ -1,4 +1,5 @@
 import random
+import typing
 
 class Card():
     def __init__(self, rank, suit) -> None:
@@ -28,6 +29,36 @@ class Deck():
     def get_deck(self):
         return self.deck
     
+class Pile():
+    def __init__(self) -> None:
+        self.pile = None
+        self.pile_changed_suit = None
+
+    def __str__(self):
+        return f"\nPile\n{self.pile}"
+
+    def show_pile(self):
+        print(self.__str__())
+        if self.pile_changed_suit:
+            print(f'Changed suit to: {self.pile_changed_suit}')
+
+    def get_initial_card(self, deck):
+        card = deck.pop(random.randint(0, len(deck) - 1))
+        self.update_pile(card)
+
+    def update_pile(self, card):
+        self.pile = card
+
+    def get_pile(self):
+        if self.pile_changed_suit:
+            return Card(rank='bla', suit=self.pile_changed_suit)
+        else: 
+            return self.pile
+    
+    def set_suit(self, suit):
+        self.pile_changed_suit = suit
+        pass
+
 class Player():
     def __init__(self) -> None:
         self.hand = []
@@ -62,21 +93,20 @@ class Player():
                 self.draw_card(deck)
                 break
 
-    def put_card(self, pile):
+    def put_card(self, pile : Pile):
         card_wanted = None
         while True:
             rank, suit = input(f"Choose card. Copy and paste the card number and symbol from above: ").split(" ")
             for card in self.hand:
                 if card.rank == rank and card.suit == suit:
-                    if card.rank in ['A', 'Joker'] or card.suit == pile.get_pile().suit:
+                    if card.rank in ['A', 'Joker'] or card.suit == pile.get_pile().suit or card.rank == pile.get_pile().rank:
                         if card.rank == 'A':
                             suit = input(f"Choose suit to change ").split(" ")
-                            pile.set_suit()
-                        if card.rank in ['2', '3', '4', 'Joker']:
-                            if card.rank in ['2', '3', 'Joker']:
-                                self.give_cards(card)
-                            else:
-                                self.stay_a_round()
+                            pile.set_suit(suit)
+                        elif card.rank == '4':
+                            self.stay_a_round()
+                        elif card.rank in ['2', '3', 'Joker']:
+                            self.give_cards(card)
                         card_wanted = card
                         self.hand.remove(card)
                         break
@@ -107,25 +137,9 @@ class Player():
     def win_condition(self, ):
         pass
 
-class Pile():
-    def __init__(self) -> None:
-        self.pile = None
 
-    def __str__(self):
-        return f"\nPile\n{self.pile}"
+    
 
-    def show_pile(self):
-        print(self.__str__())
-
-    def get_initial_card(self, deck):
-        card = deck.pop(random.randint(0, len(deck) - 1))
-        self.update_pile(card)
-
-    def update_pile(self, card):
-        self.pile = card
-
-    def get_pile(self):
-        return self.pile
 
 #trefla, inima, romb, frunza
 suits = ["\u2663", "\u2665", "\u2666", "\u2660"]
