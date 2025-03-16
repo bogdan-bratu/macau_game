@@ -97,9 +97,8 @@ class Player():
     
     def check_if_can_give_cards(self, pile):
         for card in self.hand:
-            if card.rank in ['2', '3', 'Joker']:
-                if card.rank == pile.rank or card.suit == pile.suit:
-                    return True
+            if card.rank in ['2', '3', 'Joker'] and (card.rank == pile.rank or card.suit == pile.suit):
+                return True
     
     def action2(self, deck, pile, to_draw=None):
         if to_draw:
@@ -109,7 +108,7 @@ class Player():
                 print('You can\'t give any cards. You will draw {to_draw} cards')
                 self.draw_card(deck, to_draw)
         elif not self.check_if_can_put_card(pile):
-            print('You can\'t put any card')
+            print('You can\'t put any card. Automatically drawing a card')
             self.draw_card(deck)
         else:
             self.action(deck, pile)
@@ -142,7 +141,9 @@ class Player():
         while True:    
             rank, suit = input(f"Choose card. Copy and paste the card number and symbol from above: ").split(" ")
             for card in self.hand:
+                #checking if card is in hand
                 if card.rank == rank and card.suit == suit:
+                    #checking if there are cards to draw
                     if to_draw:
                         print(f'You\'re obliged to draw {to_draw} cards')
                         if card.rank in ['2', '3', 'Joker'] and (card.rank == pile.rank or card.suit == pile.suit):
@@ -151,22 +152,31 @@ class Player():
                             response = to_draw + card.rank
                             return response
                         continue
-                    elif card.rank in ['A', 'Joker'] or card.suit == pile.get_pile().suit or card.rank == pile.get_pile().rank:
+                    #no cards to draw, checking if card can be put
+                    elif card.suit == pile.get_pile().suit or card.rank == pile.get_pile().rank or card.rank in ['A', 'Joker']:
+                        #checking exceptional cases
                         if card.rank == 'A':
-                            suit = input(f"Choose suit to change ").split(" ")
+                            suit = input(f"Choose suit to change to: ")
                             pile.set_suit(suit)
                         elif card.rank == '4':
                             response = 'stay_a_round'
                         elif card.rank in ['2', '3', 'Joker']:
                             response = self.give_cards(card)
+                        else:
+                            pass
                         card_wanted = card
                         self.hand.remove(card)
-                        return response
+                    #card can't be put
                     else:
-                        continue
+                        break
+                #checking next card
+                else:
+                    continue
+            #card is in hand
             if card_wanted:
                 pile.update_pile(card)
-                return response
+                return True
+            #card is not in hand
             else:
                 print("You can't put that card")
                 return False
