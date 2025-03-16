@@ -24,6 +24,8 @@ class Deck():
         for suit in suits:
             for rank in ranks:
                 self.deck.append(Card(rank, suit))
+        self.deck.append(Card('Joker', 'Red'))
+        self.deck.append(Card('Joker', 'Black'))
         return self
     
     def get_deck(self):
@@ -69,9 +71,14 @@ class Player():
             s += f"{card} \t"
         return s
     
-    def draw_card(self, deck):
-        card = deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1))
-        self.hand.append(card)
+    def draw_card(self, deck, to_draw=None):
+        if to_draw:
+            for i in range(to_draw):
+                card = deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1))
+                self.hand.append(card)
+        else:
+            card = deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1))
+            self.hand.append(card)
         return self
 
     def draw_cards_beginning(self, deck):
@@ -82,48 +89,102 @@ class Player():
     def show_hand(self):
         print(self.__str__())
 
-    def action(self, deck, pile):
-        while True:
-            response = int(input("Choose action: 1. Put card ; 2. Draw card "))
-            if response == 1:
-                if not self.put_card(pile):
-                    continue
-                break
-            elif response == 2:
-                self.draw_card(deck)
-                break
+    def check_if_can_put_card(self, pile):
+        for card in self.hand:
+            if card.rank == pile.get_pile().rank or card.suit == pile.get_pile().suit or card.rank in ['A', 'Joker']:
+                return True
+        return False
+    
+    def check_if_can_give_cards(self, pile):
+        for card in self.hand:
+            if card.rank in ['2', '3', 'Joker']:
+                if card.rank == pile.rank or card.suit == pile.suit:
+                    return True
+    
+    def action2(self, deck, pile, to_draw=None):
+        if to_draw:
+            if self.check_if_can_give_cards():
+                self.action(deck, pile, to_draw)
+            else:
+                print('You can\'t give any cards. You will draw {to_draw} cards')
+                self.draw_card(deck, to_draw)
+        elif not self.check_if_can_put_card(pile):
+            print('You can\'t put any card')
+            self.draw_card(deck)
+        else:
+            self.action(deck, pile)
 
-    def put_card(self, pile : Pile):
-        card_wanted = None
+    def action(self, deck, pile, to_draw=None):
+        response = None
         while True:
+            if to_draw:
+                response = self.put_card(pile, response, to_draw)
+                if not response:
+                    continue
+                return response
+            inp = input("Choose action: 1. Put card ; 2. Draw card: ")
+            try:
+                inp = int(inp)
+            except:
+                print("Invalid input")
+                continue
+            if inp == 1:
+                response = self.put_card(pile, response, to_draw)
+                if not response:
+                    continue
+                return response
+            elif inp == 2:
+                self.draw_card(deck)
+                return response
+
+    def put_card(self, pile : Pile, response, to_draw=None):
+        card_wanted = None
+        while True:    
             rank, suit = input(f"Choose card. Copy and paste the card number and symbol from above: ").split(" ")
             for card in self.hand:
                 if card.rank == rank and card.suit == suit:
-                    if card.rank in ['A', 'Joker'] or card.suit == pile.get_pile().suit or card.rank == pile.get_pile().rank:
+                    if to_draw:
+                        print(f'You\'re obliged to draw {to_draw} cards')
+                        if card.rank in ['2', '3', 'Joker'] and (card.rank == pile.rank or card.suit == pile.suit):
+                            card_wanted = card
+                            self.hand.remove(card)
+                            response = to_draw + card.rank
+                            return response
+                        continue
+                    elif card.rank in ['A', 'Joker'] or card.suit == pile.get_pile().suit or card.rank == pile.get_pile().rank:
                         if card.rank == 'A':
                             suit = input(f"Choose suit to change ").split(" ")
                             pile.set_suit(suit)
                         elif card.rank == '4':
-                            self.stay_a_round()
+                            response = 'stay_a_round'
                         elif card.rank in ['2', '3', 'Joker']:
-                            self.give_cards(card)
+                            response = self.give_cards(card)
                         card_wanted = card
                         self.hand.remove(card)
-                        break
+                        return response
                     else:
                         continue
             if card_wanted:
                 pile.update_pile(card)
-                return True
+                return response
             else:
                 print("You can't put that card")
                 return False
 
     def give_cards(self, card):
-        pass
+        if card.rank == 'Joker':
+            if card.suit == 'Red':
+                cards_to_give = 10
+            else:
+                cards_to_give = 5
+        else:
+            cards_to_give = int(card.rank)
+        return cards_to_give
+
 
     def stay_a_round(self, ):
-        pass
+        response = 'stay_a_round'
+        return response
 
     def multiple_cards(self, ):
         pass
@@ -163,13 +224,22 @@ def main():
     pile.get_initial_card(deck.get_deck())
     pile.show_pile()
 
+    response = None
+    to_draw = None
     while True:
         for ind, player in enumerate(players):
-            print(f'\nPlayer {ind+1}')
-            player.show_hand()
-            player.action(deck, pile)
-            player.show_hand()
-            pile.show_pile()
+            if response != 'stay_a_round':
+                if type(response) == int:
+                    to_draw = response
+                response = None
+                print(f'\nPlayer {ind+1}')
+                player.show_hand()
+                response = player.action2(deck, pile, to_draw)
+                player.show_hand()
+                pile.show_pile()
+            else:
+                response = None
+                
 
 
 if __name__ == "__main__":
