@@ -136,7 +136,8 @@ class Player():
     def put_card(self, pile : Pile, response, to_draw=None):
         card_wanted = None
         while True:    
-            rank, suit = input(f"Choose card. Copy and paste the card number and symbol from above: ").split(" ")
+            rank, suit = input(f"Choose card (ex. 5 trefla): ").split(" ")
+            suit = colour_dict[suit]
             #going through the hand to see if card chosen is in hand
             for card in self.hand:
                 if card.rank == rank and card.suit == suit:
@@ -160,6 +161,11 @@ class Player():
                         #checking exceptional cases
                         if card.rank == 'A':
                             suit = input(f"Choose suit to change to: ")
+                            try:
+                                suit = colour_dict[suit]
+                            #joker
+                            except KeyError:
+                                pass
                             pile.set_suit(suit)
                         elif card.rank == '4':
                             response = 'stay_a_round'
@@ -207,6 +213,13 @@ class Player():
     def win_condition(self, ):
         pass
 
+
+colour_dict = {
+    'trefla': '\u2663',
+    'inima': '\u2665',
+    'romb': '\u2666',
+    'frunza': '\u2660'
+}
 
 def read_players():
     no_players = 2
