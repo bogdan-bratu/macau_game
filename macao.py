@@ -71,18 +71,15 @@ class Player():
             s += f"{card} \t"
         return s
     
-    def draw_card(self, deck, to_draw=None):
-        if to_draw:
-            for i in range(to_draw):
-                card = deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1))
-                self.hand.append(card)
-        else:
-            card = deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1))
-            self.hand.append(card)
-        return self
+    def draw_card(self, deck):
+        self.hand.append(deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1)))
+    
+    def draw_cards_obliged(self, deck, to_draw):
+        for _ in range(to_draw):
+            self.draw_card(deck)
 
     def draw_cards_beginning(self, deck):
-        for i in range(5):
+        for _ in range(5):
             card = deck.get_deck().pop(random.randint(0, len(deck.get_deck()) - 1))
             self.hand.append(card)
 
@@ -106,7 +103,7 @@ class Player():
                 self.action(deck, pile, to_draw)
             else:
                 print('You can\'t give any cards. You will draw {to_draw} cards')
-                self.draw_card(deck, to_draw)
+                self.draw_cards_obliged(deck, to_draw)
         elif not self.check_if_can_put_card(pile):
             print('You can\'t put any card. Automatically drawing a card')
             self.draw_card(deck)
@@ -209,7 +206,13 @@ class Player():
         pass
 
 
-    
+def read_players():
+    no_players = 2
+    players = []
+    for _ in range(no_players):
+        player = Player()
+        players.append(player) 
+    return players
 
 
 #trefla, inima, romb, frunza
@@ -219,11 +222,7 @@ values = {'2': 2, '3': 3, 'Joker': [5, 10]}
 
 def main():
     deck = Deck()
-    no_players = 2
-    players = []
-    for i in range(no_players):
-        player = Player()
-        players.append(player) 
+    players = read_players()
 
     for ind, player in enumerate(players):
         print(f'\nPlayer {ind+1}')
