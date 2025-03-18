@@ -125,10 +125,10 @@ class Player():
                 print("Invalid input")
                 continue
             if inp == 1:
-                response = self.put_card(pile, response, to_draw)
-                if not response:
+                return_val = self.put_card(pile, response, to_draw)
+                if return_val == False:
                     continue
-                return response
+                return return_val
             elif inp == 2:
                 self.draw_card(deck)
                 return response
@@ -137,20 +137,26 @@ class Player():
         card_wanted = None
         while True:    
             rank, suit = input(f"Choose card. Copy and paste the card number and symbol from above: ").split(" ")
+            #going through the hand to see if card chosen is in hand
             for card in self.hand:
-                #checking if card is in hand
                 if card.rank == rank and card.suit == suit:
+                    #found the card
                     #checking if there are cards to draw
                     if to_draw:
-                        print(f'You\'re obliged to draw {to_draw} cards')
+                        print(f'The other player wants you to draw {to_draw} cards')
                         if card.rank in ['2', '3', 'Joker'] and (card.rank == pile.rank or card.suit == pile.suit):
+                            #succesfully found the card, and it can be put
                             card_wanted = card
                             self.hand.remove(card)
+                            #updating cards to draw
                             response = to_draw + card.rank
                             return response
-                        continue
-                    #no cards to draw, checking if card can be put
+                        else:
+                            print('You need to give cards')
+                            continue
+                    #no cards to draw
                     elif card.suit == pile.get_pile().suit or card.rank == pile.get_pile().rank or card.rank in ['A', 'Joker']:
+                        #found the card, and it can be put
                         #checking exceptional cases
                         if card.rank == 'A':
                             suit = input(f"Choose suit to change to: ")
@@ -159,21 +165,17 @@ class Player():
                             response = 'stay_a_round'
                         elif card.rank in ['2', '3', 'Joker']:
                             response = self.give_cards(card)
-                        else:
-                            pass
                         card_wanted = card
                         self.hand.remove(card)
-                    #card can't be put
-                    else:
                         break
                 #checking next card
                 else:
                     continue
-            #card is in hand
+            #card was found
             if card_wanted:
-                pile.update_pile(card)
+                pile.update_pile(card_wanted)
                 return True
-            #card is not in hand
+            #card was not found
             else:
                 print("You can't put that card")
                 return False
