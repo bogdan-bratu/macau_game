@@ -118,11 +118,11 @@ class Player():
                 if not response:
                     continue
                 return response
-            inp = input("Choose action: 1. Put card ; 2. Draw card: ")
+            inp = input("Choose action: 1. Put card ; 2. Draw card ; 3. Put cards: ")
             try:
                 inp = int(inp)
             except:
-                print("Invalid input")
+                print("Invalid input. Please choose 1, 2 or 3!")
                 continue
             if inp == 1:
                 return_val = self.put_card(pile, response, to_draw)
@@ -132,11 +132,23 @@ class Player():
             elif inp == 2:
                 self.draw_card(deck)
                 return response
+            elif inp == 3:
+                return_val = self.put_cards(pile, response, to_draw)
+                if return_val == False:
+                    continue
 
-    def put_card(self, pile : Pile, response, to_draw=None):
+    def put_cards(self, pile, response, to_draw):
+        card_list = input('Choose cards to put (ex. 5 trefla, 5 inima, etc): ').split(", ")
+        for card in card_list:
+            self.put_card(pile, response, to_draw, chosen_above = True, card=card)
+
+    def put_card(self, pile : Pile, response, to_draw=None, chosen_above=False, card=None):
         card_wanted = None
         while True:    
-            rank, suit = input(f"Choose card (ex. 5 trefla): ").split(" ")
+            if not chosen_above:
+                rank, suit = input(f"Choose card (ex. 5 trefla): ").split(" ")
+            else:
+                rank, suit = card.split(" ")
             suit = colour_dict[suit]
             #going through the hand to see if card chosen is in hand
             for card in self.hand:
