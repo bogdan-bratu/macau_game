@@ -190,7 +190,6 @@ class Player():
                             pile.set_suit(suit)
                         elif card.rank == '4':
                             response = 'stay_a_round'
-                            return response
                         elif card.rank in ['2', '3', 'Joker']:
                             response = self.give_cards(card)
                         card_wanted = card
@@ -202,7 +201,7 @@ class Player():
             #card was found
             if card_wanted:
                 pile.update_pile(card_wanted)
-                return True
+                return response
             #card was not found
             else:
                 print("You can't put that card")
@@ -240,7 +239,9 @@ colour_dict = {
     'trefla': '\u2663',
     'inima': '\u2665',
     'romb': '\u2666',
-    'frunza': '\u2660'
+    'frunza': '\u2660',
+    'red': ['\u2665', '\u2666'],
+    'black': ['\u2663', '\u2660']
 }
 
 def read_players():
