@@ -43,6 +43,7 @@ class Pile():
         print(self.__str__())
         if self.pile_changed_suit:
             print(f'Changed suit to: {self.pile_changed_suit}')
+        self.pile_changed_suit = None
 
     def get_initial_card(self, deck):
         card = deck.pop(random.randint(0, len(deck) - 1))
@@ -133,14 +134,22 @@ class Player():
                 self.draw_card(deck)
                 return response
             elif inp == 3:
-                return_val = self.put_cards(pile, response, to_draw)
-                if return_val == False:
+                card_from_list_can_not_be_put = False
+                card_list = input('Choose cards to put (ex. 5 trefla, 5 inima, etc): ').split(", ")
+                for card in card_list:
+                    return_val = self.put_card(pile, response, to_draw, chosen_above = True, card=card)
+                    if return_val == False:
+                        card_from_list_can_not_be_put = True
+                        break
+                if card_from_list_can_not_be_put:
                     continue
+                return return_val
+                
 
-    def put_cards(self, pile, response, to_draw):
-        card_list = input('Choose cards to put (ex. 5 trefla, 5 inima, etc): ').split(", ")
-        for card in card_list:
-            self.put_card(pile, response, to_draw, chosen_above = True, card=card)
+    # def put_cards(self, pile, response, to_draw):
+    #     card_list = input('Choose cards to put (ex. 5 trefla, 5 inima, etc): ').split(", ")
+    #     for card in card_list:
+    #         self.put_card(pile, response, to_draw, chosen_above = True, card=card)
 
     def put_card(self, pile : Pile, response, to_draw=None, chosen_above=False, card=None):
         card_wanted = None
@@ -181,6 +190,7 @@ class Player():
                             pile.set_suit(suit)
                         elif card.rank == '4':
                             response = 'stay_a_round'
+                            return response
                         elif card.rank in ['2', '3', 'Joker']:
                             response = self.give_cards(card)
                         card_wanted = card
