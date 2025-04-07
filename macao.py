@@ -1,5 +1,6 @@
 from random import randint
 
+
 class Card:
     def __init__(self, rank, suit) -> None:
         self.rank = rank
@@ -7,6 +8,7 @@ class Card:
 
     def __str__(self) -> str:
         return f"{self.rank} {self.suit}"
+
 
 class Deck:
     def __init__(self) -> None:
@@ -58,6 +60,7 @@ class Pile:
     def set_suit(self, suit):
         self.pile_changed_suit = suit
         pass
+
 
 class Player:
     def __init__(self) -> None:
@@ -255,6 +258,7 @@ class Player:
     ):
         pass
 
+
 def read_players() -> list[Player]:
     no_players = 2
     players = []
@@ -263,11 +267,13 @@ def read_players() -> list[Player]:
         players.append(player)
     return players
 
+
 def printing_method(lis, spacing):
     s = ""
     for card in lis:
         s += f"{card}{spacing}"
     return s
+
 
 # trefla, inima, romb, frunza
 suits = ["\u2663", "\u2665", "\u2666", "\u2660"]
@@ -283,6 +289,7 @@ colour_dict = {
     "black": ["\u2663", "\u2660"],
 }
 
+
 def main():
     deck = Deck()
     players = read_players()
@@ -295,30 +302,21 @@ def main():
     pile.get_initial_card(deck.get_deck())
     pile.show_pile()
 
+    response = None
+    to_draw = None
     while True:
         for ind, player in enumerate(players):
-            print(f"\nPlayer {ind+1}")
-            player.show_hand()
-            to_draw = None
-            player.action2(deck, pile, to_draw)
-            player.show_hand()
-            pile.show_pile()
-
-    # response = None
-    # to_draw = None
-    # while True:
-    #     for ind, player in enumerate(players):
-    #         if response != 'stay_a_round':
-    #             if type(response) == int:
-    #                 to_draw = response
-    #             response = None
-    #             print(f'\nPlayer {ind+1}')
-    #             player.show_hand()
-    #             response = player.action2(deck, pile, to_draw)
-    #             player.show_hand()
-    #             pile.show_pile()
-    #         else:
-    #             response = None
+            if response != "stay_a_round":
+                if type(response) == int:
+                    to_draw = response
+                response = None
+                print(f"\nPlayer {ind+1}")
+                player.show_hand()
+                response = player.action2(deck, pile, to_draw)
+                player.show_hand()
+                pile.show_pile()
+            else:
+                response = None
 
 
 if __name__ == "__main__":
