@@ -57,10 +57,8 @@ class Pile:
 
     def get_pile_suit(self):
         if self.pile_changed_suit:
-            suit = self.pile_changed_suit
-        else:
-            suit = self.pile.suit
-        return suit
+            return self.pile_changed_suit
+        return self.pile.suit
 
     def get_pile(self):
         return self.pile
@@ -105,22 +103,24 @@ class Player:
                 return True
         return False
 
-    def check_if_can_give_cards(self, pile):
+    def check_if_can_give_cards(self, pile_obj: Pile):
+        pile = pile_obj.get_pile()
         for card in self.hand:
             if (
                 card.rank in ["2", "3"]
-                and (card.rank == pile.rank or card.suit == pile.suit)
+                and (card.rank == pile.rank or card.suit == pile_obj.get_pile_suit())
             ) or card.rank == "Joker":
                 return True
 
     def action2(self, deck: Deck, pile, to_draw=None):
         if to_draw:
-            if self.check_if_can_give_cards():
+            if self.check_if_can_give_cards(pile):
                 response = self.action(deck, pile, to_draw)
             else:
-                print("You can't give any cards. You will draw {to_draw} cards")
+                print(f"You can't give any cards. You will draw {to_draw} cards")
                 self.draw_cards_obliged(deck, to_draw)
-                response = None
+                response = 0
+                return response
         elif not self.check_if_can_put_card(pile):
             print("You can't put any card. Automatically drawing a card")
             response = self.draw_card(deck)
@@ -303,15 +303,19 @@ def main():
     to_draw = None
     while True:
         for ind, player in enumerate(players):
+            print(f"\nPlayer {ind+1}")
             if response != "stay_a_round":
                 if type(response) == int:
-                    to_draw = response
-                print(f"\nPlayer {ind+1}")
+                    if response == 0:
+                        to_draw = None
+                    else:
+                        to_draw = response
                 player.show_hand()
                 response = player.action2(deck, pile, to_draw)
                 player.show_hand()
                 pile.show_pile()
             else:
+                print("You need to stay a round.")
                 response = None
 
 
