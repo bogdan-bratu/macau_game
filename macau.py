@@ -245,7 +245,7 @@ class Player:
 
     def give_cards(self, card) -> int:
         if card.rank == "Joker":
-            if card.suit == "red":
+            if card.suit == "Red":
                 cards_to_give = 10
             else:
                 cards_to_give = 5
@@ -280,8 +280,8 @@ colour_dict = {
     "inima": "\u2665",
     "romb": "\u2666",
     "frunza": "\u2660",
-    "Red": "red",
-    "Black": "black",
+    "Red": "Red",
+    "Black": "Black",
     # "red": ["\u2665", "\u2666"],
     # "black": ["\u2663", "\u2660"],
 }
