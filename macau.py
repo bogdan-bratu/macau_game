@@ -83,11 +83,20 @@ class Player:
         for _ in range(to_draw):
             self.draw_card(deck)
 
-    def draw_cards_beginning(self, deck_obj: Deck):
-        for _ in range(5):
-            deck = deck_obj.get_deck()
-            card = deck.pop(randint(0, len(deck) - 1))
-            self.hand.append(card)
+    def draw_cards_beginning(self, deck_obj: Deck, test=False):
+        if not test:
+            for _ in range(5):
+                deck = deck_obj.get_deck()
+                card = deck.pop(randint(0, len(deck) - 1))
+                self.hand.append(card)
+        else:
+            cards = [Card('Joker', 'Black'),
+                    Card(2, '\u2663'),
+                    Card(3, '\u2663'),
+                    Card(4, '\u2663'),
+                    Card(5, '\u2663'),]
+            for card in cards:
+                self.hand.append(card)
 
     def show_hand(self):
         print(self.__str__())
@@ -96,9 +105,10 @@ class Player:
         pile = pile_obj.get_pile()
         for card in self.hand:
             if (
-                card.rank == pile.rank
+                card.rank in ["A", "Joker"]
+                or card.rank == pile.rank
+                or card.rank in pile.rank # for when joker is pile card
                 or card.suit == pile_obj.get_pile_suit()
-                or card.rank in ["A", "Joker"]
             ):
                 return True
         return False
@@ -184,7 +194,7 @@ class Player:
             suit = colour_dict[suit]
             # going through the hand to see if card chosen is in hand
             for card in self.hand:
-                if card.rank == rank and card.suit == suit:
+                if card.rank == rank and (card.suit == suit or card.suit in suit):
                     # found the card
                     # checking if there are cards to draw
                     if to_draw:
@@ -204,10 +214,10 @@ class Player:
                             continue
                     # no cards to draw
                     elif (
-                        # checking if suit was changed
-                        card.suit == pile_obj.get_pile_suit()
+                        card.rank in ["A", "Joker"]
                         or card.rank == pile.rank
-                        or card.rank in ["A", "Joker"]
+                        or card.rank in pile.rank # for when joker is pile card
+                        or card.suit == pile_obj.get_pile_suit()
                     ):
                         # found the card, and it can be put
                         # unsetting the suit change
@@ -280,19 +290,17 @@ colour_dict = {
     "inima": "\u2665",
     "romb": "\u2666",
     "frunza": "\u2660",
-    "Red": "Red",
-    "Black": "Black",
-    # "red": ["\u2665", "\u2666"],
-    # "black": ["\u2663", "\u2660"],
+    "Red": ["\u2665", "\u2666"],
+    "Black": ["\u2663", "\u2660"],
 }
 
 
-def main():
+def main(test = False):
     deck = Deck()
     players = read_players()
     for ind, player in enumerate(players):
         print(f"\nPlayer {ind+1}")
-        player.draw_cards_beginning(deck)
+        player.draw_cards_beginning(deck, test)
         player.show_hand()
 
     pile = Pile()
@@ -320,4 +328,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(test=True)
