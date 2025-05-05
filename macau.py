@@ -90,11 +90,13 @@ class Player:
                 card = deck.pop(randint(0, len(deck) - 1))
                 self.hand.append(card)
         else:
-            cards = [Card('Joker', 'Black'),
-                    Card(2, '\u2663'),
-                    Card(3, '\u2663'),
-                    Card(4, '\u2663'),
-                    Card(5, '\u2663'),]
+            cards = [
+                Card("Joker", "Black"),
+                Card(2, "\u2663"),
+                Card(3, "\u2663"),
+                Card(4, "\u2663"),
+                Card(5, "\u2663"),
+            ]
             for card in cards:
                 self.hand.append(card)
 
@@ -107,7 +109,7 @@ class Player:
             if (
                 card.rank in ["A", "Joker"]
                 or card.rank == pile.rank
-                or card.rank in pile.rank # for when joker is pile card
+                or card.rank in pile.rank  # for when joker is pile card
                 or card.suit == pile_obj.get_pile_suit()
             ):
                 return True
@@ -191,10 +193,13 @@ class Player:
                 rank, suit = input(f"Choose card (ex. 5 trefla): ").split(" ")
             else:
                 rank, suit = card.split(" ")
-            suit = colour_dict[suit]
+
+            if rank != "Joker" and suit not in ["Red", "Black"]:
+                suit = colour_dict[suit]
+
             # going through the hand to see if card chosen is in hand
             for card in self.hand:
-                if card.rank == rank and (card.suit == suit or card.suit in suit):
+                if card.rank == rank and card.suit == suit:
                     # found the card
                     # checking if there are cards to draw
                     if to_draw:
@@ -216,7 +221,7 @@ class Player:
                     elif (
                         card.rank in ["A", "Joker"]
                         or card.rank == pile.rank
-                        or card.rank in pile.rank # for when joker is pile card
+                        or card.rank in pile.rank  # for when joker is pile card
                         or card.suit == pile_obj.get_pile_suit()
                     ):
                         # found the card, and it can be put
@@ -290,12 +295,10 @@ colour_dict = {
     "inima": "\u2665",
     "romb": "\u2666",
     "frunza": "\u2660",
-    "Red": ["\u2665", "\u2666"],
-    "Black": ["\u2663", "\u2660"],
 }
 
 
-def main(test = False):
+def main(test=False):
     deck = Deck()
     players = read_players()
     for ind, player in enumerate(players):
@@ -328,4 +331,4 @@ def main(test = False):
 
 
 if __name__ == "__main__":
-    main(test=False)
+    main(test=True)
