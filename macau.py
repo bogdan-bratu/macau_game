@@ -79,14 +79,14 @@ class Player:
     def __str__(self) -> str:
         return printing_method(self.hand, "\t")
 
-    def draw_card(self, deck_obj: Deck):
+    def draw_card(self, deck_obj: Deck, to_draw=None):
         deck = deck_obj.get_deck()
         self.hand.append(deck.pop(randint(0, len(deck) - 1)))
-        return None
-
-    def draw_cards_obliged(self, deck, to_draw):
-        for _ in range(to_draw):
-            self.draw_card(deck)
+        if to_draw:
+            for _ in range(to_draw-1):
+                self.hand.append(deck.pop(randint(0, len(deck) - 1)))
+            self.has_drawn = True
+        return self
 
     def draw_cards_beginning(self, deck_obj: Deck):
         if not self.test:
@@ -133,11 +133,14 @@ class Player:
         if to_draw:
             if self.check_if_can_give_cards(pile):
                 response = self.action(deck, pile, to_draw)
+                # player has drawn the given cards, unsetting to_draw variable
+                if self.has_drawn:
+                    response = 0
             else:
                 print(f"You can't give any cards. You will draw {to_draw} cards")
-                self.draw_cards_obliged(deck, to_draw)
+                self.draw_card(deck, to_draw)
                 response = 0
-                return response
+            return response
         elif not self.check_if_can_put_card(pile):
             print("You can't put any card. Automatically drawing a card")
             response = self.draw_card(deck)
@@ -149,24 +152,24 @@ class Player:
     def action(self, deck, pile, to_draw=None):
         while True:
             if to_draw:
-                # at the moment you can't give more than 1 card that gives cards
-                response = self.put_card(pile, to_draw)
-                if not response:
-                    continue
-                return response
-            inp = input("Choose action: 1. Put card ; 2. Draw card ; 3. Put cards: ")
+                print(f"The other player wants you to draw {to_draw} cards.")
+                inp = input("What will you do? 1. Put card ; 2. Draw cards ; 3. Put cards: ")
+            else:
+                inp = input("Choose action: 1. Put card ; 2. Draw card ; 3. Put cards: ")
+            
             try:
                 inp = int(inp)
             except:
                 print("Invalid input. Please choose 1, 2 or 3!")
                 continue
+
             if inp == 1:
                 response = self.put_card(pile, to_draw)
                 if not response:
                     continue
                 return response
             elif inp == 2:
-                response = self.draw_card(deck)
+                response = self.draw_card(deck, to_draw)
                 return response
             elif inp == 3:
                 card_from_list_can_not_be_put = False
@@ -184,11 +187,6 @@ class Player:
                 if card_from_list_can_not_be_put:
                     continue
                 return response
-
-    # def put_cards(self, pile, response, to_draw):
-    #     card_list = input('Choose cards to put (ex. 5 trefla, 5 inima, etc): ').split(", ")
-    #     for card in card_list:
-    #         self.put_card(pile, response, to_draw, chosen_above = True, card=card)
 
     def put_card(self, pile_obj: Pile, to_draw=None, chosen_above=False, card=None):
         card_wanted = None
